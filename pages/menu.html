@@ -47,25 +47,40 @@
                 <a href="contact.html" class="nav-link">ទំនាក់ទំនង</a>
             </div>
 
-            <!-- CTA button -->
-            <a href="menu.html" class="btn-primary nav-cta">
-                មើលមុខម្ហូប
-            </a>
+            <!-- Buttons: CTA + theme toggle + mobile menu (always 20px apart) -->
+            <div class="nav-actions">
 
-            <!-- Dark / light mode toggle -->
-            <button class="theme-toggle" id="theme-toggle" type="button"
-                aria-label="ប្តូរទៅរបៀបងងឹត" aria-pressed="false">
-                <span class="theme-toggle-icon" aria-hidden="true">🌙</span>
-                <span class="theme-toggle-label">របៀបងងឹត</span>
-            </button>
+                <a href="menu.html" class="btn-primary nav-cta">មើលមុខម្ហូប</a>
 
-            <!-- Mobile menu button -->
-            <button class="nav-toggle" type="button" aria-label="បើក/បិទម៉ឺនុយ" aria-expanded="false"
-                aria-controls="nav-links">
-                <span></span>
-                <span></span>
-                <span></span>
-            </button>
+                <!-- Dark / light mode toggle.
+                     Both icons and both labels stay in the DOM (CSS shows the right one),
+                     so the button keeps the same width in either theme. -->
+                <button class="theme-toggle" id="theme-toggle" type="button"
+                    aria-label="ប្តូរទៅរបៀបងងឹត" aria-pressed="false">
+                    <span class="theme-toggle-icon" aria-hidden="true">
+                        <svg class="icon-moon" viewBox="0 0 24 24">
+                            <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z" />
+                        </svg>
+                        <svg class="icon-sun" viewBox="0 0 24 24">
+                            <circle cx="12" cy="12" r="5" />
+                            <path d="M12 1v2M12 21v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M1 12h2M21 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42" />
+                        </svg>
+                    </span>
+                    <span class="theme-toggle-label" aria-hidden="true">
+                        <span class="label-dark">របៀបងងឹត</span>
+                        <span class="label-light">របៀបភ្លឺ</span>
+                    </span>
+                </button>
+
+                <!-- Mobile menu button -->
+                <button class="nav-toggle" type="button" aria-label="បើក/បិទម៉ឺនុយ" aria-expanded="false"
+                    aria-controls="nav-links">
+                    <span></span>
+                    <span></span>
+                    <span></span>
+                </button>
+
+            </div>
 
         </nav>
     </header>
@@ -562,19 +577,28 @@
             const root = document.documentElement;
             const button = document.getElementById("theme-toggle");
             if (!button) return;
+            let fadeTimer;
 
+            // Icons and labels are switched by CSS from data-theme;
+            // JS only keeps the accessibility attributes in sync.
             function updateThemeButton() {
                 const isDark = root.getAttribute("data-theme") === "dark";
                 button.setAttribute("aria-pressed", String(isDark));
                 button.setAttribute("aria-label", isDark ? "ប្តូរទៅរបៀបភ្លឺ" : "ប្តូរទៅរបៀបងងឹត");
-                button.querySelector(".theme-toggle-icon").textContent = isDark ? "☀️" : "🌙";
-                button.querySelector(".theme-toggle-label").textContent = isDark ? "របៀបភ្លឺ" : "របៀបងងឹត";
             }
 
             updateThemeButton();
             button.addEventListener("click", function () {
                 const nextTheme = root.getAttribute("data-theme") === "dark" ? "light" : "dark";
+
+                // Short class that turns on the colour cross-fade
+                root.classList.add("theme-changing");
                 root.setAttribute("data-theme", nextTheme);
+                clearTimeout(fadeTimer);
+                fadeTimer = setTimeout(function () {
+                    root.classList.remove("theme-changing");
+                }, 450);
+
                 try {
                     localStorage.setItem("khmer-food-theme", nextTheme);
                 } catch (error) {}
